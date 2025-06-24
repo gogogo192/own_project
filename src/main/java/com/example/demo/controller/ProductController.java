@@ -26,6 +26,7 @@ public class ProductController {
         List<Product> products = productService.getAll();
         List<ProductResponseDto> result = products.stream()
                 .map(ProductResponseDto::new)
+
                 .collect(Collectors.toList());
         return ResponseEntity.ok(result);
     }
