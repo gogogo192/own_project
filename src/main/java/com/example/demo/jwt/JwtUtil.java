@@ -3,6 +3,7 @@ package com.example.demo.jwt;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -10,13 +11,18 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    private String secretKey = "my-super-secret-key-for-jwt-that-is-long-enough"; // 실제로는 env로 분리
+
+    @Value("${jwt.secret}") // => application.properties에서 가져옴
+    private String secretKey;
+
     private Key key;
-    private final long expiration = 1000 * 60 * 60 * 24; // 24시간
+
+    @Value("${jwt.expiration:86400000}") // => 기본 만료 24시간
+    private long expiration;
 
     @PostConstruct
     public void init() {
-        key = Keys.hmacShaKeyFor(secretKey.getBytes());
+        key = Keys.hmacShaKeyFor(secretKey.getBytes()); // => Key 초기화
     }
 
     public String createToken(String username) {
@@ -40,7 +46,7 @@ public class JwtUtil {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (JwtException e) {
-            return false;
+            return false; // => 유효하지 않으면 false
         }
     }
 }
